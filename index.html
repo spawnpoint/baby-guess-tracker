@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Guess Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Trend: Updated Color Palette & Fonts --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F2; /* Very light warm off-white (Mocha Mousse inspired) */
+            color: #4A4A4A; /* Darker warm gray for body text */
+        }
+        h1, h2 { /* Main page title and card titles */
+            font-family: 'Lora', serif;
+            font-weight: 600; /* Bolder for serif headers */
+        }
+        h3 { /* Chart titles */
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: #FFFFFF; /* White cards for contrast */
+            border-radius: 0.75rem; 
+            box-shadow: 0 8px 20px -5px rgba(100, 80, 60, 0.12); /* Softer, warmer shadow */
+            padding: 2rem; /* Trend: Emphasize Negative Space - increased padding */
+            margin-bottom: 2rem; /* Trend: Emphasize Negative Space - increased margin */
+        }
+        .guess-item {
+            border: 1px solid #EAEAEA; /* Lighter border */
+            padding: 1.25rem; /* Trend: Emphasize Negative Space */
+            border-radius: 0.5rem; 
+            margin-bottom: 1rem; 
+            background-color: #FCFCFC; /* Slightly off-white for guess items */
+        }
+        .message-box { /* Kept for potential future use */
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* A warm, friendly green */
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .message-box.show {
+            opacity: 1;
+        }
+
+        #countdownTimer .time-segment {
+            background-color: #E6F3F0; /* Softer, warm teal-ish background */
+            color: #2C6B67; /* Darker warm teal text */
+            padding: 1rem 0.5rem;
+            border-radius: 0.75rem; 
+            margin: 0.25rem;
+            min-width: 80px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            animation: popIn 0.5s ease-out; 
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            70% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @media (min-width: 640px) { 
+            #countdownTimer .time-segment { padding: 1.25rem 0.75rem; min-width: 100px; margin: 0.375rem; }
+        }
+        @media (min-width: 768px) { 
+            #countdownTimer .time-segment { padding: 1.5rem 1rem; min-width: 120px; margin: 0 0.5rem; }
+        }
+        @media (min-width: 1024px) { 
+            #countdownTimer .time-segment { padding: 2rem 1.5rem; min-width: 150px; }
+        }
+
+        #countdownTimer .time-label {
+            font-size: 0.875rem; color: #3E847E; /* Slightly lighter warm teal for label */
+            display: block; margin-top: 0.5rem; font-weight: 500;
+        }
+
+        @media (min-width: 768px) { #countdownTimer .time-label { font-size: 1rem; margin-top: 0.75rem; } }
+        @media (min-width: 1024px) { #countdownTimer .time-label { font-size: 1.125rem; margin-top: 1rem; } }
+
+        .chart-container {
+            position: relative;
+            margin: 1rem auto; /* Trend: Emphasize Negative Space */
+            height: 300px; 
+            width: 100%;   
+            max-width: 500px; 
+        }
+
+        /* Accordion specific styles */
+        .accordion-header { /* Shared style for accordion headers */
+            font-family: 'Inter', sans-serif; /* Keep accordion headers sans-serif for clarity */
+            font-weight: 600;
+            border-bottom: 1px solid #EAEAEA; /* Lighter border */
+        }
+        .accordion-header svg {
+            transition: transform 0.2s ease-in-out;
+        }
+        .accordion-header.active svg {
+            transform: rotate(-180deg);
+        }
+        .accordion-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-width: 0px; 
+        }
+        .accordion-content.open {
+            max-height: 2000px; 
+            padding-top: 1rem; 
+            padding-bottom: 1rem; 
+            /* Removed border from content, header has bottom border */
+        }
+
+        /* --- Trend: Scrolling Animations --- */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div id="messageBox" class="message-box"></div> 
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-12"> <h1 class="text-5xl font-bold text-orange-700 mb-3">Baby Arrival Countdown & Guesses!</h1>
+            <p id="pageSubtitle" class="text-lg text-stone-600 mt-2">The official countdown to the big day!</p>
+        </header>
+
+        <div class="card text-center scroll-animate">
+            <h2 class="text-3xl font-semibold mb-6 text-orange-600">Countdown to Arrival</h2>
+            <div id="countdownTimer" class="flex flex-wrap justify-center items-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">
+                Loading countdown...
+            </div>
+            <p id="dueDatePassedMessage" class="mt-4 text-xl text-green-600 font-semibold hidden"></p>
+        </div>
+
+        <div class="card scroll-animate">
+            <h2 class="text-3xl font-semibold mb-6 text-center text-stone-700">All Predictions</h2>
+            
+            <div class="accordion-item border border-gray-200 rounded-lg shadow-sm">
+                <button id="pendingHeader" class="accordion-header active flex justify-between items-center w-full p-5 text-left font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 focus:outline-none rounded-t-lg">
+                    <span>Pending Predictions (<span id="pendingCount">0</span>)</span>
+                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="pendingGuessesList" class="accordion-content open bg-white rounded-b-lg space-y-3 p-1"> 
+                    <p class="text-gray-400 p-4">Loading predictions...</p>
+                </div>
+            </div>
+
+            <div class="accordion-item border border-gray-200 rounded-lg shadow-sm mt-6"> <button id="pastHeader" class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 focus:outline-none rounded-t-lg">
+                    <span>Past Predictions (<span id="pastCount">0</span>)</span>
+                    <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div id="pastGuessesList" class="accordion-content bg-white rounded-b-lg space-y-3 p-1">
+                    <p class="text-gray-400 p-4">Loading predictions...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-1 mb-6 text-sm text-stone-500"> <p>Note: "Morning" times are set to 09:00, "Evening" times to 18:00. Blank times default to 12:00 if a date is present.</p>
+        </div>
+
+        <div class="card scroll-animate">
+            <h2 class="text-3xl font-semibold mb-8 text-center text-brown-700">Guess Analysis</h2> 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10"> <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-teal-600">Weight Guesses (kg)</h3>
+                    <div class="chart-container">
+                        <canvas id="weightChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-orange-600">Date Guesses</h3>
+                    <div class="chart-container">
+                        <canvas id="dateChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-indigo-600">Time of Day Guesses</h3>
+                    <div class="chart-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-center text-pink-600">Eye Color Guesses</h3> <div class="chart-container">
+                        <canvas id="eyeColorChart"></canvas>
+                    </div>
+                </div>
+                <div class="md:col-span-2"> 
+                    <h3 class="text-xl font-semibold mb-4 text-center text-amber-700">Hair Color Guesses</h3>
+                    <div class="chart-container mx-auto"> 
+                        <canvas id="hairColorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-16 mb-8"> <p class="text-sm text-stone-500">&copy; <span id="currentYear"></span> Baby Guess Fun. Enjoy the wait!</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const countdownTimerDiv = document.getElementById('countdownTimer');
+        const dueDatePassedMessage = document.getElementById('dueDatePassedMessage');
+        
+        const pendingHeader = document.getElementById('pendingHeader');
+        const pendingGuessesList = document.getElementById('pendingGuessesList');
+        const pendingCountSpan = document.getElementById('pendingCount');
+        
+        const pastHeader = document.getElementById('pastHeader');
+        const pastGuessesList = document.getElementById('pastGuessesList');
+        const pastCountSpan = document.getElementById('pastCount');
+
+        const pageSubtitle = document.getElementById('pageSubtitle');
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const expectedDueDate = new Date(2025, 5, 17, 9, 0, 0); 
+
+        const rawGuesses = [
+            { id: 1, name: "Dennis and Stella", gender: "Girl", date: "2025-06-10", time: "10:00", weight: 2.95, eyeColor: "Brown", hairColor: "Black" },
+            { id: 2, name: "Shivani Aunty", gender: "Girl", date: "2025-06-20", time: "18:00", weight: 2.50, eyeColor: "Black", hairColor: "Black" },
+            { id: 3, name: "Unknown (1)", gender: "Girl", date: "2025-06-21", time: "03:00", weight: null, eyeColor: "Brown", hairColor: "Black" },
+            { id: 4, name: "Seetha", gender: "Girl", date: "2025-06-15", time: "07:00", weight: 3.50, eyeColor: "Brown", hairColor: "Black" },
+            { id: 5, name: "Alka Aunty", gender: "Girl", date: "2025-06-10", time: "17:15", weight: 3.50, eyeColor: "Brown", hairColor: "Black" },
+            { id: 6, name: "Reeta Aunty", gender: "Girl", date: "2025-06-14", time: "04:00", weight: 3.50, eyeColor: "Brown", hairColor: "Black" },
+            { id: 7, name: "Darryn and Anh", gender: "Girl", date: "2025-06-04", time: "20:16", weight: 2.88, eyeColor: "Brown", hairColor: "Black" },
+            { id: 8, name: "Thomas and Shireen", gender: "Girl", date: "2025-06-16", time: "13:00", weight: 3.2, eyeColor: "Brown", hairColor: "Black" },
+            { id: 9, name: "Grant and Estella", gender: "Girl", date: "2025-06-15", time: "15:55", weight: 3.73, eyeColor: "Brown", hairColor: "Black" },
+            { id: 10, name: "Unknown (2)", gender: "Girl", date: "2025-06-13", time: "08:55", weight: 3.0, eyeColor: "Brown", hairColor: "Black" },
+            { id: 11, name: "Nandha", gender: "Girl", date: "2025-06-01", time: "22:00", weight: 5.1, eyeColor: "Brown", hairColor: "Black" },
+            { id: 12, name: "Dartha", gender: "Girl", date: "2025-06-06", time: "14:25", weight: 5.7, eyeColor: "Black", hairColor: "Black" },
+            { id: 13, name: "Aneale", gender: "Girl", date: "2025-06-11", time: "10:00", weight: 3.9, eyeColor: "Brown", hairColor: "Black" },
+            { id: 14, name: "Didi", gender: "Girl", date: "2025-06-15", time: "02:36", weight: 2.9, eyeColor: "Brown", hairColor: "Black" },
+            { id: 15, name: "Papa", gender: "Girl", date: "2025-06-12", time: "19:00", weight: 3.1, eyeColor: "Black", hairColor: "Black" },
+            { id: 16, name: "Dashrath", gender: "Boy", date: "2012-12-03", time: "17:38", weight: 3.0, eyeColor: "Black", hairColor: "Black" },
+            { id: 17, name: "Kislay Uncle", gender: "Girl", date: "2025-06-15", time: "11:00", weight: 2.58, eyeColor: "Black", hairColor: "Black" },
+            { id: 18, name: "Calise and Alan", gender: "Girl", date: "2025-06-16", time: "12:05", weight: 2.7, eyeColor: "Brown", hairColor: "Black" },
+            { id: 19, name: "Chaturi", gender: "Girl", date: "2025-06-14", time: "07:30", weight: 2.75, eyeColor: "Green/Brown", hairColor: "Medium Brown" },
+            { id: 20, name: "Mummy", gender: "Girl", date: "2025-06-12", time: "10:00", weight: 3.0, eyeColor: "Black", hairColor: "Black" },
+            { id: 21, name: "Meesha Didi", gender: "Girl", date: "2025-06-09", time: "21:00", weight: 3.90, eyeColor: "Black", hairColor: "Black" },
+            { id: 22, name: "Archie and Jess", gender: "Girl", date: "2025-06-20", time: "15:00", weight: 3.0, eyeColor: "Brown", hairColor: "Black/Brown" },
+            { id: 23, name: "Pooja", gender: "Girl", date: "2025-06-17", time: "06:45", weight: 3.9, eyeColor: "Dark Brown", hairColor: "Black" },
+            { id: 24, name: "Santha Aunty", gender: "Girl", date: "2025-06-12", time: "18:30", weight: 3.1, eyeColor: "Brown", hairColor: "Black" },
+            { id: 25, name: "Ming", gender: "Girl", date: "2025-06-22", time: "02:00", weight: 3.0, eyeColor: "Brown", hairColor: "Black" },
+            { id: 26, name: "Chandana Aunty", gender: "Girl", date: "2025-06-06", time: "09:00", weight: 3.0, eyeColor: "Black", hairColor: "Black" },
+            { id: 27, name: "Jacob Uncle", gender: "Girl", date: "2025-06-09", time: "08:30", weight: 3.0, eyeColor: "Brown", hairColor: "Black" },
+            { id: 28, name: "Andrew and Cincy", gender: "Girl", date: "2025-06-10", time: "16:00", weight: 2.828, eyeColor: "Brown", hairColor: "Black" }
+        ];
+
+        const guesses = rawGuesses.map(guess => {
+            const validDate = typeof guess.date === 'string' && guess.date.match(/^\d{4}-\d{2}-\d{2}$/);
+            const validTime = typeof guess.time === 'string' && guess.time.match(/^\d{2}:\d{2}$/);
+            if (validDate && validTime) {
+                const guessDateTime = new Date(`${guess.date}T${guess.time}`);
+                return { ...guess, dateTime: guessDateTime.toISOString() };
+            }
+            console.warn("Guess has invalid date/time, dateTime will be invalid:", guess);
+            return { ...guess, dateTime: new Date(null).toISOString() };
+        });
+        
+        let countdownInterval;
+        let chartInstances = {}; 
+
+        function formatDate(dateObj) {
+            if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj.getTime())) return 'N/A';
+            return dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function formatTime(dateObj) {
+            if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj.getTime())) return 'N/A';
+            return dateObj.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = expectedDueDate.getTime() - now;
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                countdownTimerDiv.innerHTML = ''; 
+                if(dueDatePassedMessage) {
+                    dueDatePassedMessage.textContent = `The expected due date (${formatDate(expectedDueDate)} at ${formatTime(expectedDueDate)}) has passed! Hopefully, the little one has arrived!`;
+                    dueDatePassedMessage.classList.remove('hidden');
+                }
+                renderGuesses(); 
+                return;
+            }
+            if(dueDatePassedMessage) dueDatePassedMessage.classList.add('hidden');
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            countdownTimerDiv.innerHTML = `
+                <div class="time-segment"><div>${days}</div><span class="time-label">Days</span></div>
+                <div class="time-segment"><div>${hours}</div><span class="time-label">Hours</span></div>
+                <div class="time-segment"><div>${minutes}</div><span class="time-label">Minutes</span></div>
+                <div class="time-segment"><div>${seconds}</div><span class="time-label">Seconds</span></div>
+            `;
+        }
+
+        function startCountdown() {
+            clearInterval(countdownInterval); 
+            updateCountdown(); 
+            countdownInterval = setInterval(() => {
+                updateCountdown();
+                if (expectedDueDate.getTime() > new Date().getTime()) {
+                    renderGuesses();
+                }
+            }, 1000);
+        }
+
+        function renderGuesses() {
+            pendingGuessesList.innerHTML = ''; 
+            pastGuessesList.innerHTML = '';    
+            const now = new Date();
+            let pendingCount = 0;
+            let pastCount = 0;
+
+            const sortedGuesses = [...guesses].sort((a, b) => {
+                const dateA = new Date(a.dateTime);
+                const dateB = new Date(b.dateTime);
+                if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+                if (isNaN(dateA.getTime())) return 1;
+                if (isNaN(dateB.getTime())) return -1;
+                return dateA - dateB;
+            });
+
+            sortedGuesses.forEach(guess => {
+                const guessDateTime = new Date(guess.dateTime);
+                if (isNaN(guessDateTime.getTime())) {
+                    console.warn("Skipping rendering guess with invalid dateTime:", guess);
+                    return; 
+                }
+                const guessElement = document.createElement('div');
+                guessElement.className = 'guess-item p-4 rounded-lg shadow-sm'; // Softer shadow for guess items
+                let guessStatusInfo = '';
+                if (guessDateTime > expectedDueDate) {
+                    guessStatusInfo = `<span class="text-xs text-indigo-600">(Predicted after official due date)</span>`; // Warmer purple
+                }
+                guessElement.innerHTML = `
+                    <h4 class="font-semibold text-lg text-stone-700">${guess.name || 'N/A'}</h4>
+                    <p class="text-sm text-stone-600">
+                        Predicted: <span class="font-medium">${formatDate(guessDateTime)} at ${formatTime(guessDateTime)}</span>
+                        ${guessStatusInfo}
+                    </p>
+                    <div class="mt-2 text-xs text-stone-500 grid grid-cols-2 gap-x-2">
+                        <span><strong>Weight:</strong> ${guess.weight !== null && guess.weight !== undefined ? guess.weight + ' kg' : 'N/A'}</span>
+                        <span><strong>Eyes:</strong> ${guess.eyeColor || 'N/A'}</span>
+                        <span><strong>Hair:</strong> ${guess.hairColor || 'N/A'}</span>
+                    </div>
+                `;
+                if (guessDateTime > now) {
+                    pendingGuessesList.appendChild(guessElement);
+                    pendingCount++;
+                } else {
+                    pastGuessesList.appendChild(guessElement);
+                    pastCount++;
+                }
+            });
+
+            pendingCountSpan.textContent = pendingCount;
+            pastCountSpan.textContent = pastCount;
+
+            if (pendingCount === 0) pendingGuessesList.innerHTML = '<p class="text-stone-400 p-4">No pending predictions at this time.</p>';
+            if (pastCount === 0) pastGuessesList.innerHTML = '<p class="text-stone-400 p-4">No past predictions yet.</p>';
+        }
+        
+        function setupAccordions() {
+            const accordions = [
+                { header: pendingHeader, content: pendingGuessesList },
+                { header: pastHeader, content: pastGuessesList }
+            ];
+            accordions.forEach(acc => {
+                acc.header.addEventListener('click', () => {
+                    const isOpen = acc.content.classList.contains('open');
+                    if (isOpen) {
+                        acc.content.classList.remove('open');
+                        acc.header.classList.remove('active');
+                    } else {
+                        acc.content.classList.add('open');
+                        acc.header.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // --- Trend: Scrolling Animations ---
+        function setupScrollAnimations() {
+            const animatedCards = document.querySelectorAll('.scroll-animate');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Optional: unobserve after animation to save resources
+                        // observer.unobserve(entry.target); 
+                    }
+                });
+            }, {
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            });
+
+            animatedCards.forEach(card => {
+                observer.observe(card);
+            });
+        }
+
+        function renderCharts() {
+            function destroyChart(chartId) {
+                if (chartInstances[chartId]) chartInstances[chartId].destroy();
+            }
+            // Trend: Updated Color Palette for Charts
+            const chartColors = {
+                teal: 'rgba(67, 136, 131, 0.7)',      // Deep Teal
+                orange: 'rgba(234, 130, 55, 0.7)',    // Rich Orange
+                warmPurple: 'rgba(124, 92, 188, 0.7)',// Warm Purple
+                softPink: 'rgba(220, 120, 140, 0.7)', // Soft Warm Pink
+                lightBrown: 'rgba(181, 133, 83, 0.7)',// Light Warm Brown
+                olive: 'rgba(130, 138, 91, 0.7)',     // Muted Olive Green
+                stone: 'rgba(150, 140, 130, 0.7)'     // Warm Stone
+            };
+            const pieChartPalette = [
+                chartColors.teal, chartColors.orange, chartColors.warmPurple, chartColors.softPink, 
+                chartColors.lightBrown, chartColors.olive, chartColors.stone, 'rgba(100,100,100,0.7)' // Fallback gray
+            ];
+
+
+            destroyChart('weightChart');
+            const weightData = { '<2.5kg': 0, '2.5-2.99kg': 0, '3.0-3.49kg': 0, '3.5-3.99kg': 0, '4.0-4.49kg': 0, '4.5-4.99kg':0, '>=5.0kg': 0, 'N/A': 0 };
+            guesses.forEach(g => {
+                if (g.weight === null || g.weight === undefined) weightData['N/A']++;
+                else if (g.weight < 2.5) weightData['<2.5kg']++;
+                else if (g.weight < 3.0) weightData['2.5-2.99kg']++;
+                else if (g.weight < 3.5) weightData['3.0-3.49kg']++;
+                else if (g.weight < 4.0) weightData['3.5-3.99kg']++;
+                else if (g.weight < 4.5) weightData['4.0-4.49kg']++;
+                else if (g.weight < 5.0) weightData['4.5-4.99kg']++;
+                else weightData['>=5.0kg']++;
+            });
+            chartInstances['weightChart'] = new Chart(document.getElementById('weightChart'), {
+                type: 'bar',
+                data: { labels: Object.keys(weightData), datasets: [{ label: 'Number of Guesses', data: Object.values(weightData), backgroundColor: chartColors.teal }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+            destroyChart('dateChart');
+            const dateCounts = guesses.reduce((acc, g) => { if (g.date) { acc[g.date] = (acc[g.date] || 0) + 1; } return acc; }, {});
+            const sortedDates = Object.keys(dateCounts).sort((a,b) => new Date(a) - new Date(b));
+            chartInstances['dateChart'] = new Chart(document.getElementById('dateChart'), {
+                type: 'bar',
+                data: { labels: sortedDates, datasets: [{ label: 'Number of Guesses', data: sortedDates.map(date => dateCounts[date]), backgroundColor: chartColors.orange }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+            destroyChart('timeChart');
+            const timeSlotData = { 'Early Morning (00-05)': 0, 'Morning (06-11)': 0, 'Afternoon (12-17)': 0, 'Evening (18-23)': 0, 'N/A':0 };
+            guesses.forEach(g => {
+                if (!g.time) { timeSlotData['N/A']++; return; }
+                const hour = parseInt(g.time.split(':')[0]);
+                if (isNaN(hour)) timeSlotData['N/A']++;
+                else if (hour < 6) timeSlotData['Early Morning (00-05)']++;
+                else if (hour < 12) timeSlotData['Morning (06-11)']++;
+                else if (hour < 18) timeSlotData['Afternoon (12-17)']++;
+                else timeSlotData['Evening (18-23)']++;
+            });
+            chartInstances['timeChart'] = new Chart(document.getElementById('timeChart'), {
+                type: 'bar',
+                data: { labels: Object.keys(timeSlotData), datasets: [{ label: 'Number of Guesses', data: Object.values(timeSlotData), backgroundColor: chartColors.warmPurple }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+            destroyChart('eyeColorChart');
+            const eyeColorCounts = guesses.reduce((acc, g) => { const color = g.eyeColor || 'N/A'; acc[color] = (acc[color] || 0) + 1; return acc; }, {});
+            chartInstances['eyeColorChart'] = new Chart(document.getElementById('eyeColorChart'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(eyeColorCounts), datasets: [{ label: 'Eye Color Guesses', data: Object.values(eyeColorCounts), backgroundColor: pieChartPalette }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+            destroyChart('hairColorChart');
+            const hairColorCounts = guesses.reduce((acc, g) => { const color = g.hairColor || 'N/A'; acc[color] = (acc[color] || 0) + 1; return acc; }, {});
+            chartInstances['hairColorChart'] = new Chart(document.getElementById('hairColorChart'), {
+                type: 'pie',
+                data: { labels: Object.keys(hairColorCounts), datasets: [{ label: 'Hair Color Guesses', data: Object.values(hairColorCounts), backgroundColor: pieChartPalette.slice().reverse() }] }, // Use reversed palette for variety
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+        
+        function init() {
+            if (pageSubtitle) {
+                 pageSubtitle.textContent = `The official countdown to June 17th, 2025, 9:00 AM!`;
+            }
+            startCountdown(); 
+            renderGuesses(); 
+            renderCharts(); 
+            setupAccordions(); 
+            setupScrollAnimations(); // Initialize scroll animations
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
