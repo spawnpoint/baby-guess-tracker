@@ -13,176 +13,134 @@
         /* --- Dynamic Theme & Glassmorphism --- */
         body {
             font-family: 'Inter', sans-serif;
-            transition: background 1.5s ease; /* Smooth transition for theme changes */
+            transition: background 1.5s ease;
             background-size: 200% 200%;
             animation: gradientMove 15s ease infinite alternate;
             color: #4A4A4A;
         }
-
-        /* Time-based themes */
         .theme-morning { background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); }
         .theme-afternoon { background: linear-gradient(135deg, #89CFF0 0%, #B0E0E6 100%); }
         .theme-evening { background: linear-gradient(135deg, #E6E6FA 0%, #9370DB 100%); }
         .theme-night { background: linear-gradient(135deg, #483D8B 0%, #000080 100%); }
         .theme-night, .theme-evening { color: #f0f0f0; }
+        .theme-night h1, .theme-evening h1 { color: #fff; }
+        .theme-night #pageSubtitle, .theme-evening #pageSubtitle { color: #e0e0e0; }
         .theme-night .card h2, .theme-night .card h3, .theme-evening .card h2, .theme-evening .card h3 { color: #333; }
         .theme-night .guess-item, .theme-evening .guess-item { color: #4A4A4A; }
         .theme-night .card, .theme-evening .card { background: rgba(255, 255, 255, 0.4); }
         .theme-night .guess-item, .theme-evening .guess-item { background-color: rgba(252, 252, 252, 0.95); }
 
-
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
+        @keyframes gradientMove { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
         h1, h2 { font-family: 'Lora', serif; font-weight: 600; }
         h3 { font-family: 'Inter', sans-serif; font-weight: 600; }
 
         .card {
-            /* Glassmorphism Effect */
-            background: rgba(255, 255, 255, 0.6);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            padding: 2rem;
-            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 0.75rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); padding: 2rem; margin-bottom: 2rem;
         }
         .guess-item {
-            border: 1px solid #EAEAEA;
-            padding: 1.25rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            background-color: rgba(252, 252, 252, 0.85);
-            position: relative;
+            border: 1px solid #EAEAEA; padding: 1.25rem; border-radius: 0.5rem; margin-bottom: 1rem;
+            background-color: rgba(252, 252, 252, 0.85); position: relative;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .guess-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .guess-item:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        .chart-container { position: relative; margin: 1rem auto; height: 300px; width: 100%; max-width: 500px; }
+
+        /* --- Tab/Accordion Styles --- */
+        .tab-button {
+            transition: all 0.3s ease; padding: 0.75rem 1.25rem; font-weight: 600;
+            cursor: pointer; border-bottom: 3px solid transparent; color: #6b7280;
+        }
+        .tab-button.active { color: #0d9488; border-bottom-color: #0d9488; }
+        .tab-content { display: none; padding-top: 1rem; }
+        .tab-content.active { display: block; }
+        
+        @media (max-width: 767px) {
+            .tabs-container { border: 1px solid rgba(229, 231, 235, 0.8); border-radius: 0.5rem; overflow: hidden; }
+            .tab-buttons { flex-direction: column; }
+            .tab-button {
+                display: flex; justify-content: space-between; align-items: center; width: 100%;
+                border-bottom: 1px solid rgba(229, 231, 235, 0.8); color: #374151;
+            }
+            .tab-button:last-child { border-bottom: none; }
+            .tab-button.active { background-color: rgba(209, 250, 229, 0.5); border-bottom-color: rgba(229, 231, 235, 0.8); }
+            .tab-button .icon { transition: transform 0.3s ease; }
+            .tab-button.active .icon { transform: rotate(180deg); }
+            .tab-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; padding: 0 1.25rem; }
+            .tab-content.active { max-height: 5000px; padding: 1rem 1.25rem 0.5rem; }
         }
 
-        #countdownTimer .time-segment {
-            background-color: rgba(230, 243, 240, 0.8);
-            color: #2C6B67;
-            padding: 1rem 0.5rem;
-            border-radius: 0.75rem;
-            margin: 0.25rem;
-            min-width: 80px;
-            text-align: center;
+        /* --- New Countdown Timer Styles (Adapted from cloworm/countdown) --- */
+        #countdownTimer {
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
+        }
+        .bloc-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0.5rem 1rem;
+        }
+        .count-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #3E847E;
+            margin-bottom: 0.5rem;
+        }
+        .figure {
+            font-family: 'Lora', serif;
+            font-size: clamp(3rem, 10vw, 6rem); /* Responsive font size */
+            font-weight: 700;
+            line-height: 1;
+            background-color: rgba(230, 243, 240, 0.8);
+            color: #2C6B67;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            min-width: 80px;
+            text-align: center;
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            animation: popIn 0.5s ease-out;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0.9); opacity: 0.7; }
-            70% { transform: scale(1.02); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        #countdownTimer .time-label {
-            font-size: 0.875rem; color: #3E847E;
-            display: block; margin-top: 0.5rem; font-weight: 500;
-        }
-
-        .chart-container {
-            position: relative; margin: 1rem auto; height: 300px; width: 100%; max-width: 500px;
-        }
-
-        /* Accordion specific styles */
-        .accordion-header {
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(234, 234, 234, 0.5);
-            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-        }
-        .accordion-header:hover {
-            background-color: rgba(224, 242, 247, 0.5);
-            box-shadow: 0 4px 10px rgba(100, 80, 60, 0.08);
-            transform: translateY(-2px);
-        }
-        .accordion-header .icon { margin-right: 0.5rem; width: 24px; height: 24px; }
-        .accordion-header svg { transition: transform 0.2s ease-in-out; }
-        .accordion-header.active svg { transform: rotate(-180deg); }
-        .accordion-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-            border-width: 0px;
-        }
-        .accordion-content.open {
-            max-height: 9999px; overflow-y: auto; padding-top: 1rem; padding-bottom: 1rem;
-        }
-        
-        /* Other styles from previous steps remain unchanged */
-        .message-box, .confetti, .sparkle-effect, .scroll-animate { /* ... */ }
-        @media (min-width: 640px) { /* ... */ }
-        @keyframes confetti-fall { /* ... */ }
-        @keyframes sparkle-burst { /* ... */ }
+        .scroll-animate { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease-out, transform 0.7s ease-out; }
+        .scroll-animate.visible { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="text-gray-800">
 
-    <div id="messageBox" class="message-box"></div>
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-        
-        <div id="locationGreeting" class="text-center text-stone-500 text-sm mb-8">
-            Hello from Melbourne, Australia! 👋
-        </div>
-
+        <div id="locationGreeting" class="text-center text-sm mb-8">Hello from Melbourne, Australia! 👋</div>
         <header class="text-center mb-12">
-            <h1 class="text-5xl font-bold text-orange-700 mb-3">Baby Arrival Countdown & Guesses!</h1>
-            <p id="pageSubtitle" class="text-lg text-stone-600 mt-2">The official countdown to the big day!</p>
+            <h1 class="text-5xl font-bold">Baby Arrival Countdown & Guesses!</h1>
+            <p id="pageSubtitle" class="text-lg mt-2">The official countdown to the big day!</p>
         </header>
 
         <div class="card text-center scroll-animate">
-            <h2 class="text-3xl font-semibold mb-6 text-orange-600">Countdown to Arrival</h2>
-            <div class="flex justify-center items-center mb-4">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48ZyBmaWxsPSJub25lIj48cGF0aCBmaWxsPSIjMmY4OGZmIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iNCIgZD0iTTE1LjAwMDEgMjAuNjEyMUMxMy41NzY0IDI2Ljc2MTYgMjEuNDkyOSAyOC4zMjcgMTkuNjIzOCAzMi42NTk3QzE3Ljc1NDYgMzYuOTkyMyAxMy41Njg4IDM2LjEyNTggMTQuMDM2MSA0MC40NTg0QzE0LjUwMzUgNDQuNzkxIDIwLjA0MTkgNDQuODUxOSAyNS4wODM3IDQyLjI0MTVDMzUuMTY3NSAzNy4wMjA1IDM3LjI3MDggMjUuNjE2NiAzMi43MDc1IDIwLjYxMjJDMjcuMTAwMiAxNC40NjI2IDE2LjQyMzcgMTQuNDYyNiAxNS4wMDAxIDIwLjYxMjFaIi8+PGVsbGlwc2UgY3g9IjM0LjUzNSIgY3k9IjEzLjUzNSIgZmlsbD0iIzAwMCIgcng9IjIiIHJ5PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSg0MCAzNC41MzUgMTMuNTM1KSIvPjxlbGxpcHNlIGN4PSIyOS4zODEiIGN5PSIxMC42MDMiIGZpbGw9IiMwMDAiIHJ4PSIyIiByeT0iMyIgdHJhbnNmb3JtPSJyb3RhdGUoMjUgMjkuMzggMTAuNjAzKSIvPjxlbGxpcHNlIGN4PSIyMy4zODEiIGN5PSI5LjYwMyIgZmlsbD0iIzAwMCIgcng9IjIiIHJ5PSIzIiB0cmFuc2Zvcm09InJvdGF0ZSg2IDIzLjM4IDkuNjAzKSIvPjxlbGxpcHNlIGN4PSIxNCIgY3k9IjgiIGZpbGw9IiMyZjg4ZmYiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSI0IiByeD0iMyIgcnk9IjQiIHRyYW5zZm9ybT0icm90YXRlKC0yMCAxNCA4KSIvPjxlbGxpcHNlIGN4PSIzOC41MzUiIGN5PSIxNy41MzYiIGZpbGw9IiMwMDAiIHJ4PSIyIiByeT0iMyIgdHJhbnNmb3JtPSJyb3RhdGUoNTAgMzguNTM1IDE3LjUzNikiLz48L2c+PC9zdmc+" alt="Baby Feet Icon" class="w-10 h-10 mr-2" onerror="this.onerror=null;this.src='https://placehold.co/40x40/FFC0CB/000000?text=👶'">
-            </div>
-            <div id="countdownTimer" class="flex flex-wrap justify-center items-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold">
-                Loading countdown...
-            </div>
+            <h2 class="text-3xl font-semibold mb-6">Countdown to Arrival</h2>
+            <div id="countdownTimer" class="font-bold"></div>
             <p id="dueDatePassedMessage" class="mt-4 text-xl text-green-600 font-semibold hidden"></p>
         </div>
 
         <div class="card scroll-animate">
             <h2 class="text-3xl font-semibold mb-6 text-center">All Predictions</h2>
-            
-            <div class="accordion-item border-b border-gray-200/50">
-                <button id="pendingHeader" class="accordion-header active flex justify-between items-center w-full p-5 text-left font-semibold text-teal-700 focus:outline-none">
-                    <span class="flex items-center">
-                        <img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+ICAgIDxwYXRoIGZpbGw9IiMwZDk0ODgiIGQ9Ik0xMzcuNDYgOTAuMDk3Yy0xNC40MSAyOC4yMTUgMjUuMTI0IDcwLjU4OCAxNy4zNzMgMTAxLjMwN0MxMzguMjUxIDI1Ny4xMiA3My42MjUgMzM1Ljg2IDE4LjU4NyAzODIuNTcyVjQ3OS43YzEwNi4xMzUtNDYuOTcgMTgwLjM2NS0yMTMuNTQxIDIxNS44OC0zMTEuODgxYzQ2LjUyOC0yLjk5NSA4NC4xNzQtNS40OTcgMTE4LjMyNy05LjMzNmMtNS4zNTIgMTAuNDA4LTEwLjA2OCAyMi41OTMtMTYuNDIgMzUuNTc0Yy0zNC42MyA3MC43NzEtNjIuMTYgMjEwLjAzNi00My4wNDUgMjU0Ljg4N2MxOC41ODkgMzEuNjE3IDU5LjgxOCA0MS4yMjkgOTMuOTQyIDQwLjcwN2MzMi4wNzQtLjQ5MSA3My45NDItMTIuODIgODcuMDktNDAuOTQ3YzguMzMtMTguNzgxIDExLjE0Ny00Mi4yNjcgOS4zOC02OC41MjJjLTUuOTE2IDEyLjY2Ny0yMC45MTYgMTcuOTg3LTMyLjY5IDE4LjEwNmMtMTEuMjI1LS45MDUtMjEuMzU5LTMuNTE3LTI4LjMzMS0xMS4yODZjLTYuOTEzIDkuNjUzLTIwLjM1OCAxMy43Ny0zMC4zODMgMTMuODcxYy0xNi40OTktLjU3Ny0zMy45NjUtMTAuMDktMzQuMzI4LTI2LjEzMmMwLTQuMDM2IDEuMTktNy43NDUgMy4xMy0xMC45ODljLTE5LjcyOS00MS4yMDUtNS4zNi0xNTMuODQgOS44OTEtMjA3LjQ5NGMxMS42Mi0xLjU0MSAyMi45MzItMy4yOTYgMzQuMTU4LTUuMzMyYzYuNjMgMjUuNzM4IDEzLjUwNyA5OC4yOSAxNi4zMTcgMTI3Ljg5OWMyNS4xMjQgMi41ODMgNDQuODggMjMuOTU2IDQ0Ljg4IDQ5LjczNmMwIDYuNjkzLTEuMzQgMTMuMDg0LTMuNzUxIDE4LjkzMmM3Ljc0IDIuMjMzIDE0LjczNCA2LjQyIDE4Ljk3IDEyLjY1NmMtNC40MDEtMzAuMzAyLTE0LjExMy0xMDUuMzk2LTI3Ljk0My0xMzguNzI3Yy0xMC4xNjQtMjQuNDk1LTE3Ljc3NS01My4yMDMtMzIuOTQ1LTczLjUwOGMyMi4xOTgtNC41OTMgNDQuNTAyLTEwLjQ1IDY4LjcyNC0xOC4yMWMtNzIuODAzLTEwLjk4Ny0xNTcuMTk4LTEzLjMxNy0yMzAuMDAzLTE1LjI1YzAgMC0yNS42NzYtNDQuMTI4LTQ4LjAzLTQ5LjUxMmMtMjUuMzEyLTYuMDk3LTYyLjMwMiAzLjY0NS03My45NDYgMjUuMTU0em01Ni4yNTYtMS44ODNjMTkuMzg5LS41NDggMzkuODUzIDE4Ljk4IDQ4LjEzMyAzNy40NzljLTE2LjUyMiA1LjQ1NC00NS41MjMuNzgzLTU3LjE3LTEyLjEyYy02Ljk4NC03LjczNy01LjUxNS0yMy4xMjYgNS4xNzctMjQuOTc2YTI3IDI3IDAgMCAxIDMuODYtLjM4M20xOTAuNjcgMjQwLjM0OGMwIDcuNjIzIDIuNjIgMTQuNTg2IDcuMDA4IDIwLjA2YzEwLjY5NC43NyAyMy44ODggNS4zMiAyOS41OTUgMTEuNjEyYzE1LjU2OC0yLjIwOCAyNy4zOTctMTUuNDU3IDI3LjM5Ny0zMS42NzJjMC0xNy43OC0xNC4yMi0zMi0zMi0zMnMtMzIgMTQuMjItMzIgMzJtNjcuMTQ0IDM1LjQ3N2E1MC4zIDUwLjMgMCAwIDEtMTUuNzk3IDEwLjYwN2M2LjM2NyA3LjIwMyAzMS40MjYgNy4yMDggMzEuNjQ3LTIuNDljLTEuOTk2LTYuMDgzLTEwLjM4NC03Ljk2NC0xNS44NS04LjExN20tNTkuMTkzIDIuNTY4Yy00LjUyNy40Ni0xNi4xODIgMS43MjUtMTYuMzI4IDguMTM1YzIuMDUyIDYuMjA0IDEwLjc5MyA4LjA3MiAxNi4zMjggOC4xMzJjNC41MjYtLjQ2IDE2LjE4Mi0xLjcyNCAxNi4zMjgtOC4xMzJjLTIuMDUyLTYuMjA4LTEwLjc5My04LjA3NS0xNi4zMjgtOC4xMzUiIC8+PC9zdmc+' alt="Stork Icon" class="icon mr-2" onerror="this.onerror=null;this.src='https://placehold.co/24x24/E6F3F0/2C6B67?text=🪶'">
-                        <span>Pending Predictions (<span id="pendingCount">0</span>)</span>
-                    </span>
-                    <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-                <div id="pendingGuessesList" class="accordion-content open space-y-3 p-1">
-                    <div id="pendingLottieContainer" class="flex justify-center items-center h-24 my-4">
-                        <p class="p-4">Loading predictions...</p>
-                    </div>
+            <div class="tabs-container">
+                <div class="tab-buttons flex flex-row justify-center md:border-b md:border-gray-200/80">
+                    <button class="tab-button active" data-target="#pendingGuesses">
+                        <span>Pending (<span id="pendingCount">0</span>)</span>
+                        <svg class="icon w-5 h-5 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <button class="tab-button" data-target="#pastGuesses">
+                        <span>Past (<span id="pastCount">0</span>)</span>
+                        <svg class="icon w-5 h-5 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
                 </div>
-            </div>
-
-            <div class="accordion-item">
-                <button id="pastHeader" class="accordion-header flex justify-between items-center w-full p-5 text-left font-semibold text-rose-700 focus:outline-none">
-                    <span class="flex items-center">
-                        <img src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4gICAgPHBhdGggZmlsbD0iI2JlMTIzYyIgZD0iTTEzIDJ2OGg4YTggOCAwIDAgMC04LThtNi4zMiAxMy44OWE3Ljk1IDcuOTUgMCAwIDAgMi42OC0xLjk5SDE5YTggOCAwIDAgMC0xLjY4LTQuODlIOTN2Mmg2LjQ0TDEyLjUgMjdIMjB2MmgzLjIyUzE4LjExIDE0LjU4IDE4LjM0IDE0LjkyYy0xLjEtLjYxLTEuODUtMS43Ny0xLjg1LTMuMDhhMy41IDMuNSAwIDAgMSA3IDBjMS43NiAwIDMuMjItMS4zIDMuNDYtM2gyLjA4Yy4yNCAxLjcgMS43IDMgMy40NiAzYTMuNSAzLjUgMCAwIDAgMy41LTMuNWMwLTEuMDQtLjQ2LTEuOTctMS4xOC0yLjYxTTggMjBhMS41IDEuNSAwIDAgMS0xLjUtMS41QTEuNSAxLjUgMCAwIDEgOCAxN2ExLjUgMS41IDAgMCAxIDEuNSAxLjUgMS41IDEuNSAwIDAgMS0xLjUgMS41bTkgMGExLjUgMS41IDAgMCAxLTEuNS0xLjVBMS41IDEuNSAwIDAgMSAxNyAxN2ExLjUgMS41IDAgMCAxIDEuNSAxLjUgMS41IDEuNSAwIDAgMS0xLjUgMS41IiAvPjwvc3ZnPg==' alt="Baby Carriage Icon" class="icon mr-2" onerror="this.onerror=null;this.src='https://placehold.co/24x24/FFE0E0/DC2626?text=🛒'">
-                        <span>Past Predictions (<span id="pastCount">0</span>)</span>
-                    </span>
-                    <svg class="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-                <div id="pastGuessesList" class="accordion-content space-y-3 p-1">
-                    <p class="p-4">Loading predictions...</p>
+                <div class="tab-content-container">
+                    <div id="pendingGuesses" class="tab-content active"></div>
+                    <div id="pastGuesses" class="tab-content"></div>
                 </div>
             </div>
         </div>
@@ -190,169 +148,150 @@
         <div class="card scroll-animate">
             <h2 class="text-3xl font-semibold mb-8 text-center">Guess Analysis</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-                <div>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Weight Guesses (kg)</h3>
-                    <div class="chart-container"><canvas id="weightChart"></canvas></div>
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Date Guesses</h3>
-                    <div class="chart-container"><canvas id="dateChart"></canvas></div>
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Time of Day Guesses</h3>
-                    <div class="chart-container"><canvas id="timeChart"></canvas></div>
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold mb-4 text-center">Eye Color Guesses</h3>
-                    <div class="chart-container"><canvas id="eyeColorChart"></canvas></div>
-                </div>
-                <div class="md:col-span-2">
-                    <h3 class="text-xl font-semibold mb-4 text-center">Hair Color Guesses</h3>
-                    <div class="chart-container mx-auto"><canvas id="hairColorChart"></canvas></div>
-                </div>
+                <div> <h3 class="text-xl font-semibold mb-4 text-center">Weight (kg)</h3> <div class="chart-container"><canvas id="weightChart"></canvas></div> </div>
+                <div> <h3 class="text-xl font-semibold mb-4 text-center">Dates</h3> <div class="chart-container"><canvas id="dateChart"></canvas></div> </div>
+                <div> <h3 class="text-xl font-semibold mb-4 text-center">Time of Day</h3> <div class="chart-container"><canvas id="timeChart"></canvas></div> </div>
+                <div> <h3 class="text-xl font-semibold mb-4 text-center">Eye Color</h3> <div class="chart-container"><canvas id="eyeColorChart"></canvas></div> </div>
+                <div class="md:col-span-2"> <h3 class="text-xl font-semibold mb-4 text-center">Hair Color</h3> <div class="chart-container mx-auto"><canvas id="hairColorChart"></canvas></div> </div>
             </div>
         </div>
 
         <footer class="text-center mt-16 mb-8 text-sm">
-            <p>Note: "Morning" times are set to 09:00, "Evening" times to 18:00. Blank times default to 12:00 if a date is present.</p>
+            <p>Note: "Morning" is 9am, "Evening" is 6pm. Blank times default to 12pm.</p>
             <p class="mt-2">&copy; <span id="currentYear"></span> Baby Guess Fun. Enjoy the wait!</p>
         </footer>
     </div>
 
     <script>
-        // DOM Elements
-        const countdownTimerDiv = document.getElementById('countdownTimer');
-        const dueDatePassedMessage = document.getElementById('dueDatePassedMessage');
-        const pendingHeader = document.getElementById('pendingHeader');
-        const pendingGuessesList = document.getElementById('pendingGuessesList');
-        const pendingCountSpan = document.getElementById('pendingCount');
-        const pastHeader = document.getElementById('pastHeader');
-        const pastGuessesList = document.getElementById('pastGuessesList');
-        const pastCountSpan = document.getElementById('pastCount');
-        const pageSubtitle = document.getElementById('pageSubtitle');
-
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-
+        // --- Data ---
         const expectedDueDate = new Date(2025, 5, 17, 9, 0, 0);
 
-        const rawGuesses = [
-            { id: 1, name: "Dennis and Stella", gender: "Girl", date: "2025-06-10", time: "10:00", weight: 2.95, eyeColor: "Brown", hairColor: "Black" },
-            { id: 2, name: "Shivani Aunty", gender: "Girl", date: "2025-06-20", time: "18:00", weight: 2.50, eyeColor: "Black", hairColor: "Black" },
-            { id: 3, name: "Unknown (1)", gender: "Girl", date: "2025-06-21", time: "03:00", weight: null, eyeColor: "Brown", hairColor: "Black" },
-            { id: 4, name: "Seetha", gender: "Girl", date: "2025-06-15", time: "07:00", weight: 3.50, eyeColor: "Brown", hairColor: "Black" },
-            { id: 5, name: "Alka Aunty", gender: "Girl", date: "2025-06-10", time: "17:15", weight: 3.50, eyeColor: "Brown", hairColor: "Black" },
-            { id: 6, name: "Reeta Aunty", gender: "Girl", date: "2025-06-14", time: "04:00", weight: 3.50, eyeColor: "Brown", hairColor: "Black" },
-            { id: 7, name: "Darryn and Anh", gender: "Girl", date: "2025-06-04", time: "20:16", weight: 2.88, eyeColor: "Brown", hairColor: "Black" },
-            { id: 8, name: "Thomas and Shireen", gender: "Girl", date: "2025-06-16", time: "13:00", weight: 3.2, eyeColor: "Brown", hairColor: "Black" },
-            { id: 9, name: "Grant and Estella", gender: "Girl", date: "2025-06-15", time: "15:55", weight: 3.73, eyeColor: "Brown", hairColor: "Black" },
-            { id: 10, name: "Unknown (2)", gender: "Girl", date: "2025-06-13", time: "08:55", weight: 3.0, eyeColor: "Brown", hairColor: "Black" },
-            { id: 11, name: "Nandha", gender: "Girl", date: "2025-06-01", time: "22:00", weight: 5.1, eyeColor: "Brown", hairColor: "Black" },
-            { id: 12, name: "Dartha", gender: "Girl", date: "2025-06-06", time: "14:25", weight: 5.7, eyeColor: "Black", hairColor: "Black" },
-            { id: 13, name: "Aneale", gender: "Girl", date: "2025-06-11", time: "10:00", weight: 3.9, eyeColor: "Brown", hairColor: "Black" },
-            { id: 14, name: "Didi", gender: "Girl", date: "2025-06-15", time: "02:36", weight: 2.9, eyeColor: "Brown", hairColor: "Black" },
-            { id: 15, name: "Snigdha's Papa", gender: "Girl", date: "2025-06-12", time: "19:00", weight: 3.1, eyeColor: "Black", hairColor: "Black" },
-            { id: 16, name: "Dashrath", gender: "Boy", date: "2012-12-03", time: "17:38", weight: 3.0, eyeColor: "Black", hairColor: "Black" },
-            { id: 17, name: "Kislay Uncle", gender: "Girl", date: "2025-06-15", time: "11:00", weight: 2.58, eyeColor: "Black", hairColor: "Black" },
-            { id: 18, name: "Calise and Alan", gender: "Girl", date: "2025-06-16", time: "12:05", weight: 2.7, eyeColor: "Brown", hairColor: "Black" },
-            { id: 19, name: "Chaturi", gender: "Girl", date: "2025-06-14", time: "07:30", weight: 2.75, eyeColor: "Green/Brown", hairColor: "Medium Brown" },
-            { id: 20, name: "Snigdha's Mummy", gender: "Girl", date: "2025-06-12", time: "10:00", weight: 3.0, eyeColor: "Black", hairColor: "Black" },
-            { id: 21, name: "Meesha Didi", gender: "Girl", date: "2025-06-09", time: "21:00", weight: 3.90, eyeColor: "Black", hairColor: "Black" },
-            { id: 22, name: "Archie and Jess", gender: "Girl", date: "2025-06-20", time: "15:00", weight: 3.0, eyeColor: "Brown", hairColor: "Black/Brown" },
-            { id: 23, name: "Pooja", gender: "Girl", date: "2025-06-17", time: "06:45", weight: 3.9, eyeColor: "Dark Brown", hairColor: "Black" },
-            { id: 24, name: "Santha Aunty", gender: "Girl", date: "2025-06-12", time: "18:30", weight: 3.1, eyeColor: "Brown", hairColor: "Black" },
-            { id: 25, name: "Ming", gender: "Girl", date: "2025-06-22", time: "02:00", weight: 3.0, eyeColor: "Brown", hairColor: "Black" },
-            { id: 26, name: "Chandana Aunty", gender: "Girl", date: "2025-06-06", time: "09:00", weight: 3.0, eyeColor: "Black", hairColor: "Black" },
-            { id: 27, name: "Jacob Uncle", gender: "Girl", date: "2025-06-09", time: "08:30", weight: 3.0, eyeColor: "Brown", hairColor: "Black" },
-            { id: 28, name: "Andrew and Cincy", gender: "Girl", date: "2025-06-10", time: "16:00", weight: 2.828, eyeColor: "Brown", hairColor: "Black" },
-            { id: 29, name: "Ankit Dixit", gender: "Girl", date: "2025-06-11", time: "12:00", weight: 2.75, eyeColor: "Dark Brown", hairColor: "Blonde" },
-            { id: 30, name: "Akshey's Papa", gender: "Girl", date: "2025-06-14", time: "21:40", weight: 3.00, eyeColor: "Black", hairColor: "Black" },
-            { id: 31, name: "Akshey's Ma", gender: "Girl", date: "2025-06-14", time: "22:10", weight: 3.1, eyeColor: "Dark Brown", hairColor: "Dark Brown" }
-        ];
-
-        const guesses = rawGuesses.map(guess => {
-            const validDate = typeof guess.date === 'string' && guess.date.match(/^\d{4}-\d{2}-\d{2}$/);
-            const validTime = typeof guess.time === 'string' && guess.time.match(/^\d{2}:\d{2}$/);
-            if (validDate && validTime) {
-                const guessDateTime = new Date(`${guess.date}T${guess.time}`);
-                return { ...guess, dateTime: guessDateTime.toISOString() };
-            }
-            return { ...guess, dateTime: new Date(null).toISOString() };
-        }).sort((a,b) => new Date(a.dateTime) - new Date(b.dateTime)); // Sort initial list by date
-
-        let countdownInterval;
+        // --- Global State ---
         let chartInstances = {};
-        let lottieAnimationInstance;
+        let lottieAnimation;
+        let lastKnownPendingCount = -1;
+        
+        // --- Countdown Library (from cloworm/countdown) ---
+        class Countdown {
+            constructor(options) {
+                this.options = options;
+                this.container = document.querySelector(options.selector);
+                this.targetDate = new Date(options.date);
+                this.onEnd = options.onEnd || (() => {});
+                this.interval = null;
+                this.createCountdown();
+                this.start();
+            }
 
+            createCountdown() {
+                const elements = ['days', 'hours', 'minutes', 'seconds'];
+                elements.forEach(el => {
+                    const bloc = document.createElement('div');
+                    bloc.className = `bloc-time ${el}`;
+                    const title = document.createElement('span');
+                    title.className = 'count-title';
+                    title.textContent = el.charAt(0).toUpperCase() + el.slice(1);
+                    const figure = document.createElement('div');
+                    figure.className = `figure ${el}-fig`;
+                    figure.textContent = '00';
+                    bloc.appendChild(title);
+                    bloc.appendChild(figure);
+                    this.container.appendChild(bloc);
+                });
+            }
+
+            start() {
+                this.update();
+                this.interval = setInterval(() => this.update(), 1000);
+            }
+
+            update() {
+                const now = new Date();
+                const distance = this.targetDate.getTime() - now.getTime();
+
+                if (distance < 0) {
+                    clearInterval(this.interval);
+                    this.onEnd();
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                this.container.querySelector('.days-fig').textContent = String(days).padStart(2, '0');
+                this.container.querySelector('.hours-fig').textContent = String(hours).padStart(2, '0');
+                this.container.querySelector('.minutes-fig').textContent = String(minutes).padStart(2, '0');
+                this.container.querySelector('.seconds-fig').textContent = String(seconds).padStart(2, '0');
+            }
+        }
+
+        // --- Utility Functions ---
+        function formatDate(date) { return date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }); }
+        function formatTime(date) { return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); }
+
+        // --- Core Application Logic ---
         function updateTheme() {
             const hour = new Date().getHours();
             const body = document.body;
             body.classList.remove('theme-morning', 'theme-afternoon', 'theme-evening', 'theme-night');
-
-            if (hour >= 6 && hour < 12) {
-                body.classList.add('theme-morning');
-            } else if (hour >= 12 && hour < 18) {
-                body.classList.add('theme-afternoon');
-            } else if (hour >= 18 && hour < 22) {
-                body.classList.add('theme-evening');
-            } else {
-                body.classList.add('theme-night');
-            }
+            if (hour >= 6 && hour < 12) body.classList.add('theme-morning');
+            else if (hour >= 12 && hour < 18) body.classList.add('theme-afternoon');
+            else if (hour >= 18 && hour < 22) body.classList.add('theme-evening');
+            else body.classList.add('theme-night');
         }
 
-        function renderGuesses() {
+        function renderGuesses(guesses) {
             const now = new Date();
-            let pendingCount = 0;
-            let pastCount = 0;
-
-            pendingGuessesList.innerHTML = '';
-            pastGuessesList.innerHTML = '';
+            const pendingContainer = document.getElementById('pendingGuesses');
+            const pastContainer = document.getElementById('pastGuesses');
             
-            if (lottieAnimationInstance) {
-                lottieAnimationInstance.destroy();
-                lottieAnimationInstance = null;
-            }
+            const currentPendingCount = guesses.filter(g => g.dateTime > now).length;
+            if (currentPendingCount === lastKnownPendingCount) return;
+            
+            lastKnownPendingCount = currentPendingCount;
+            
+            pendingContainer.innerHTML = '';
+            pastContainer.innerHTML = '';
+            
+            let pendingCount = 0, pastCount = 0;
 
             guesses.forEach(guess => {
-                const guessDateTime = new Date(guess.dateTime);
-                if (isNaN(guessDateTime.getTime())) return;
+                if (isNaN(guess.dateTime.getTime())) return;
                 
                 const guessElement = document.createElement('div');
-                guessElement.className = 'guess-item p-4 rounded-lg shadow-sm';
-                let guessStatusInfo = '';
-                if (guessDateTime > expectedDueDate) {
-                    guessStatusInfo = `<span class="text-xs text-indigo-500">(Predicted after official due date)</span>`;
-                }
+                guessElement.className = 'guess-item';
                 guessElement.innerHTML = `
                     <h4 class="font-semibold text-lg">${guess.name || 'N/A'}</h4>
-                    <p class="text-sm">
-                        Predicted: <span class="font-medium">${formatDate(guessDateTime)} at ${formatTime(guessDateTime)}</span>
-                        ${guessStatusInfo}
-                    </p>
+                    <p class="text-sm">Predicted: <span class="font-medium">${formatDate(guess.dateTime)} at ${formatTime(guess.dateTime)}</span></p>
                     <div class="mt-2 text-xs grid grid-cols-2 gap-x-2">
-                        <span><strong>Weight:</strong> ${guess.weight !== null && guess.weight !== undefined ? guess.weight + ' kg' : 'N/A'}</span>
+                        <span><strong>Weight:</strong> ${guess.weight ? guess.weight + ' kg' : 'N/A'}</span>
                         <span><strong>Eyes:</strong> ${guess.eyeColor || 'N/A'}</span>
                         <span><strong>Hair:</strong> ${guess.hairColor || 'N/A'}</span>
-                    </div>
-                `;
-                if (guessDateTime > now) {
-                    pendingGuessesList.appendChild(guessElement);
+                    </div>`;
+                
+                if (guess.dateTime > now) {
+                    pendingContainer.appendChild(guessElement);
                     pendingCount++;
                 } else {
-                    pastGuessesList.appendChild(guessElement);
+                    pastContainer.appendChild(guessElement);
                     pastCount++;
                 }
             });
 
-            pendingCountSpan.textContent = pendingCount;
-            pastCountSpan.textContent = pastCount;
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('pastCount').textContent = pastCount;
 
-            if (pendingCount === 0 && !document.getElementById('pendingLottieContainer')) {
-                 const lottieContainer = document.createElement('div');
-                 lottieContainer.id = 'pendingLottieContainer';
-                 lottieContainer.className = 'flex justify-center items-center h-24 my-4';
-                 pendingGuessesList.appendChild(lottieContainer);
-                 lottieAnimationInstance = lottie.loadAnimation({
-                    container: lottieContainer,
+            if (lottieAnimation) {
+                lottieAnimation.destroy();
+                lottieAnimation = null;
+            }
+
+            if (pendingCount === 0) {
+                pendingContainer.innerHTML = `<div id="lottie-container" class="flex justify-center items-center h-48"></div>`;
+                lottieAnimation = lottie.loadAnimation({
+                    container: document.getElementById('lottie-container'),
                     renderer: 'svg',
                     loop: true,
                     autoplay: true,
@@ -360,150 +299,122 @@
                 });
             }
             if (pastCount === 0) {
-                pastGuessesList.innerHTML = '<p class="p-4">No past predictions yet.</p>';
+                pastContainer.innerHTML = `<div class="flex justify-center items-center h-24 my-4"><p>No past predictions yet.</p></div>`;
             }
         }
         
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = expectedDueDate.getTime() - now;
-            
-            // Re-render guesses on each tick to check if any have moved to the "past"
-            renderGuesses();
-
-            if (distance < 0) {
-                clearInterval(countdownInterval);
-                countdownTimerDiv.innerHTML = '';
-                if(dueDatePassedMessage) {
-                    dueDatePassedMessage.textContent = `The expected due date (${formatDate(expectedDueDate)} at ${formatTime(expectedDueDate)}) has passed! Hopefully, the little one has arrived!`;
-                    dueDatePassedMessage.classList.remove('hidden');
-                }
-                showConfetti(); 
-                return;
-            }
-
-            if(dueDatePassedMessage) dueDatePassedMessage.classList.add('hidden');
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            countdownTimerDiv.innerHTML = `
-                <div class="time-segment"><div>${days}</div><span class="time-label">Days</span></div>
-                <div class="time-segment"><div>${hours}</div><span class="time-label">Hours</span></div>
-                <div class="time-segment"><div>${minutes}</div><span class="time-label">Minutes</span></div>
-                <div class="time-segment"><div>${seconds}</div><span class="time-label">Seconds</span></div>
-            `;
-        }
-
-        function renderCharts() {
+        function renderCharts(guesses) {
             Object.values(chartInstances).forEach(chart => chart.destroy());
-
-            const chartColors = {
-                teal: 'rgba(67, 136, 131, 0.7)', orange: 'rgba(234, 130, 55, 0.7)',
-                warmPurple: 'rgba(124, 92, 188, 0.7)', softPink: 'rgba(220, 120, 140, 0.7)',
-                lightBrown: 'rgba(181, 133, 83, 0.7)', olive: 'rgba(130, 138, 91, 0.7)',
-                stone: 'rgba(150, 140, 130, 0.7)'
-            };
+            const chartColors = { teal: 'rgba(67, 136, 131, 0.7)', orange: 'rgba(234, 130, 55, 0.7)', warmPurple: 'rgba(124, 92, 188, 0.7)', softPink: 'rgba(220, 120, 140, 0.7)', lightBrown: 'rgba(181, 133, 83, 0.7)', olive: 'rgba(130, 138, 91, 0.7)' };
             const pieChartPalette = Object.values(chartColors);
             
-            const weightData = { '<2.5kg': 0, '2.5-2.99kg': 0, '3.0-3.49kg': 0, '3.5-3.99kg': 0, '4.0-4.49kg': 0, '4.5-4.99kg':0, '>=5.0kg': 0, 'N/A': 0 };
+            const weightData = { '<2.5kg': 0, '2.5-3kg': 0, '3-3.5kg': 0, '3.5-4kg': 0, '>4kg': 0, 'N/A': 0 };
             guesses.forEach(g => {
-                if (g.weight === null || g.weight === undefined) weightData['N/A']++;
-                else if (g.weight < 2.5) weightData['<2.5kg']++;
-                else if (g.weight < 3.0) weightData['2.5-2.99kg']++;
-                else if (g.weight < 3.5) weightData['3.0-3.49kg']++;
-                else if (g.weight < 4.0) weightData['3.5-3.99kg']++;
-                else if (g.weight < 4.5) weightData['4.0-4.49kg']++;
-                else if (g.weight < 5.0) weightData['4.5-4.99kg']++;
-                else weightData['>=5.0kg']++;
+                if (!g.weight) weightData['N/A']++;
+                else if (g.weight < 2.5) weightData['<2.5kg']++; else if (g.weight < 3) weightData['2.5-3kg']++;
+                else if (g.weight < 3.5) weightData['3-3.5kg']++; else if (g.weight < 4) weightData['3.5-4kg']++;
+                else weightData['>4kg']++;
             });
-            chartInstances['weightChart'] = new Chart(document.getElementById('weightChart'), {
-                type: 'bar',
-                data: { labels: Object.keys(weightData), datasets: [{ label: 'Number of Guesses', data: Object.values(weightData), backgroundColor: chartColors.teal }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
+            chartInstances.weight = new Chart(document.getElementById('weightChart'), { type: 'bar', data: { labels: Object.keys(weightData), datasets: [{ data: Object.values(weightData), backgroundColor: chartColors.teal }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
 
-            const eyeColorCounts = guesses.reduce((acc, g) => { const color = g.eyeColor || 'N/A'; acc[color] = (acc[color] || 0) + 1; return acc; }, {});
-            chartInstances['eyeColorChart'] = new Chart(document.getElementById('eyeColorChart'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(eyeColorCounts), datasets: [{ label: 'Eye Color Guesses', data: Object.values(eyeColorCounts), backgroundColor: pieChartPalette }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            const hairColorCounts = guesses.reduce((acc, g) => { const color = g.hairColor || 'N/A'; acc[color] = (acc[color] || 0) + 1; return acc; }, {});
-            chartInstances['hairColorChart'] = new Chart(document.getElementById('hairColorChart'), {
-                type: 'pie',
-                data: { labels: Object.keys(hairColorCounts), datasets: [{ label: 'Hair Color Guesses', data: Object.values(hairColorCounts), backgroundColor: pieChartPalette.slice().reverse() }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-            
             const dateCounts = guesses.reduce((acc, g) => { if (g.date) { acc[g.date] = (acc[g.date] || 0) + 1; } return acc; }, {});
             const sortedDates = Object.keys(dateCounts).sort((a,b) => new Date(a) - new Date(b));
-            chartInstances['dateChart'] = new Chart(document.getElementById('dateChart'), {
-                type: 'bar',
-                data: { labels: sortedDates, datasets: [{ label: 'Number of Guesses', data: sortedDates.map(date => dateCounts[date]), backgroundColor: chartColors.orange }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
-
-            const timeSlotData = { 'Early Morning (00-05)': 0, 'Morning (06-11)': 0, 'Afternoon (12-17)': 0, 'Evening (18-23)': 0, 'N/A':0 };
+            chartInstances.date = new Chart(document.getElementById('dateChart'), { type: 'bar', data: { labels: sortedDates, datasets: [{ data: Object.values(dateCounts), backgroundColor: chartColors.orange }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+            
+            const timeSlots = { 'Early Morning (12-6am)': 0, 'Morning (6-12pm)': 0, 'Afternoon (12-6pm)': 0, 'Night (6-12am)': 0, 'N/A': 0 };
             guesses.forEach(g => {
-                if (!g.time) { timeSlotData['N/A']++; return; }
-                const hour = parseInt(g.time.split(':')[0]);
-                if (isNaN(hour)) timeSlotData['N/A']++;
-                else if (hour < 6) timeSlotData['Early Morning (00-05)']++;
-                else if (hour < 12) timeSlotData['Morning (06-11)']++;
-                else if (hour < 18) timeSlotData['Afternoon (12-17)']++;
-                else timeSlotData['Evening (18-23)']++;
+                if(!g.time || !g.dateTime) { timeSlots['N/A']++; return; }
+                const hour = g.dateTime.getHours();
+                if (hour < 6) timeSlots['Early Morning (12-6am)']++; else if (hour < 12) timeSlots['Morning (6-12pm)']++;
+                else if (hour < 18) timeSlots['Afternoon (12-6pm)']++; else timeSlots['Night (6-12am)']++;
             });
-            chartInstances['timeChart'] = new Chart(document.getElementById('timeChart'), {
-                type: 'bar',
-                data: { labels: Object.keys(timeSlotData), datasets: [{ label: 'Number of Guesses', data: Object.values(timeSlotData), backgroundColor: chartColors.warmPurple }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
-        }
+            chartInstances.time = new Chart(document.getElementById('timeChart'), { type: 'bar', data: { labels: Object.keys(timeSlots), datasets: [{ data: Object.values(timeSlots), backgroundColor: chartColors.warmPurple }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
 
-        // Functions like setupAccordions, setupScrollAnimations, etc.
-        function formatDate(dateObj) { if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj.getTime())) return 'N/A'; return dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }); }
-        function formatTime(dateObj) { if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj.getTime())) return 'N/A'; return dateObj.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); }
-        function showConfetti() { /* ... full function ... */ }
-        function showSparkle(element) { /* ... full function ... */ }
-        function setupAccordions(){ 
-            const accordions = [
-                { header: pendingHeader, content: pendingGuessesList },
-                { header: pastHeader, content: pastGuessesList }
-            ];
-            accordions.forEach(acc => {
-                acc.header.addEventListener('click', () => {
-                    const isOpen = acc.content.classList.contains('open');
-                    // Simple toggle logic
-                    if (isOpen) {
-                        acc.content.classList.remove('open');
-                        acc.header.classList.remove('active');
-                    } else {
-                        acc.content.classList.add('open');
-                        acc.header.classList.add('active');
-                        showSparkle(acc.header); // Trigger sparkle effect
+            const eyeColorCounts = guesses.reduce((acc, g) => { const color = g.eyeColor || 'N/A'; acc[color] = (acc[color] || 0) + 1; return acc; }, {});
+            chartInstances.eye = new Chart(document.getElementById('eyeColorChart'), { type: 'doughnut', data: { labels: Object.keys(eyeColorCounts), datasets: [{ data: Object.values(eyeColorCounts), backgroundColor: pieChartPalette }] }, options: { responsive: true, maintainAspectRatio: false } });
+
+            const hairColorCounts = guesses.reduce((acc, g) => { const color = g.hairColor || 'N/A'; acc[color] = (acc[color] || 0) + 1; return acc; }, {});
+            chartInstances.hair = new Chart(document.getElementById('hairColorChart'), { type: 'pie', data: { labels: Object.keys(hairColorCounts), datasets: [{ data: Object.values(hairColorCounts), backgroundColor: pieChartPalette.slice().reverse() }] }, options: { responsive: true, maintainAspectRatio: false } });
+        }
+        
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const target = document.querySelector(button.dataset.target);
+                    const isAccordion = window.innerWidth < 768;
+
+                    if (isAccordion && button.classList.contains('active')) {
+                        button.classList.remove('active');
+                        target.classList.remove('active');
+                        return;
                     }
+                    
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    button.classList.add('active');
+                    target.classList.add('active');
                 });
             });
         }
-        function setupScrollAnimations(){ /* ... full function ... */ }
+        
+        function setupScrollAnimations() {
+            const animatedCards = document.querySelectorAll('.scroll-animate');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            animatedCards.forEach(card => observer.observe(card));
+        }
 
-        function init() {
-            if (pageSubtitle) {
-                   pageSubtitle.textContent = `The official countdown to June 17th, 2025, 9:00 AM!`;
+        async function init() {
+            const guessesUrl = 'https://gist.githubusercontent.com/spawnpoint/ddf8fe3aa749f06059daa5ded7698c35/raw/guesses.json';
+
+            try {
+                const response = await fetch(guessesUrl);
+                if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+                const rawGuesses = await response.json();
+                
+                const processedGuesses = rawGuesses.map(guess => {
+                    const validDate = typeof guess.date === 'string' && guess.date.match(/^\d{4}-\d{2}-\d{2}$/);
+                    const validTime = typeof guess.time === 'string' && guess.time.match(/^\d{2}:\d{2}$/);
+                    return { ...guess, dateTime: (validDate && validTime) ? new Date(`${guess.date}T${guess.time}`) : new Date(null) };
+                }).sort((a,b) => a.dateTime - b.dateTime);
+
+                document.getElementById('currentYear').textContent = new Date().getFullYear();
+                
+                updateTheme();
+                renderCharts(processedGuesses);
+                setupTabs();
+                setupScrollAnimations();
+                
+                renderGuesses(processedGuesses);
+                setInterval(() => renderGuesses(processedGuesses), 1000);
+
+                new Countdown({
+                    selector: '#countdownTimer',
+                    date: expectedDueDate,
+                    onEnd: () => {
+                        document.getElementById('countdownTimer').innerHTML = '';
+                        const msgEl = document.getElementById('dueDatePassedMessage');
+                        msgEl.textContent = `The expected due date (${formatDate(expectedDueDate)}) has passed! Hopefully, the little one has arrived!`;
+                        msgEl.classList.remove('hidden');
+                    }
+                });
+
+                setInterval(updateTheme, 60000);
+
+            } catch (error) {
+                console.error("Failed to load or process guess data:", error);
+                document.querySelector('.tabs-container').innerHTML = `<p class="text-center text-red-500">Could not load guess data. Please check the console for more information.</p>`;
             }
-            updateTheme();
-            setInterval(updateTheme, 60000);
-
-            // Initial setup
-            renderCharts();
-            setupAccordions();
-            setupScrollAnimations();
-            
-            // Start the countdown timer
-            updateCountdown(); // Initial call to display immediately
-            countdownInterval = setInterval(updateCountdown, 1000);
         }
 
         document.addEventListener('DOMContentLoaded', init);
